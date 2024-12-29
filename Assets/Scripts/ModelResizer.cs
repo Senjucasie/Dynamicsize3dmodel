@@ -7,9 +7,15 @@ public class ModelResizer : MonoBehaviour
    
     void Start()
     {
-        FindCenterPoint();
+        CreateCenterPoint();
     }
 
+    private void CreateCenterPoint()
+    {
+        GameObject updatedpivot = new GameObject("pivot");
+        updatedpivot.transform.position = FindCenterPoint();
+        transform.parent = updatedpivot.transform;
+    }
 
     private Vector3 FindCenterPoint()
     {
