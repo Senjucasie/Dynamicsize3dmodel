@@ -1,22 +1,32 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class ModelResizer : MonoBehaviour
 {
-   
+    [Header("Variable to scale the 3d model into")]
+    [Range(0.5f,10)]
+    [SerializeField] private float _scaleFactor = 1;
     void Start()
     {
-        CreateCenterPoint();
-        checksize();
+        RecalculateSize();
     }
 
-    private void CreateCenterPoint()
+    private void RecalculateSize()
     {
-        GameObject updatedpivot = new GameObject("pivot");
-        updatedpivot.transform.position = FindCenterPoint();
-        transform.parent = updatedpivot.transform;
-        updatedpivot.transform.position = Vector3.zero;
+        Transform pivot = CreateCenterPoint();
+        transform.parent = pivot;
+        pivot.position = Vector3.zero;
+        pivot.localScale = Vector3.one * GetScale();
+    }
+
+    private Transform CreateCenterPoint()
+    {
+        GameObject pivot = new GameObject("pivot");
+        pivot.transform.position = FindCenterPoint();
+        return pivot.transform;
+
     }
 
     private Vector3 FindCenterPoint()
@@ -35,18 +45,16 @@ public class ModelResizer : MonoBehaviour
         
         return bounds.center;
     }
-    private void checksize()
+    private float GetScale()
     {
-        Vector3 add = Sizeofmodel();
-        Debug.Log(add);
-        Debug.Log( 1/((add.x+add.y+add.z)/3));
+        Vector3 totalbounds = ClaculateBounds(GetComponentsInChildren<Renderer>());
+        return  _scaleFactor / ((totalbounds.x+totalbounds.y+totalbounds.z)/3);
     
     }
 
-    private Vector3 Sizeofmodel()
+    private Vector3 ClaculateBounds(Renderer[] renderers)
     {
         Bounds bounds = new Bounds(transform.position, Vector3.zero);
-        Renderer[] renderers = GetComponentsInChildren<Renderer>();
 
         if (renderers == null || renderers.Length == 0)
         {
